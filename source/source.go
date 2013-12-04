@@ -14,8 +14,8 @@ var (
 		`http://pets\.neopets\.com/cp/([a-z0-9]+)/1/2\.png`)
 )
 
-func GetNotable(maxTries int) (Notable, bool) {
-	for i := 0; i < maxTries; i++ {
+func GetNotable(maxTries uint64) (Notable, bool) {
+	for i := uint64(0); i < maxTries; i++ {
 		notable := requestNotable()
 		if notable.PetName != "" {
 			return notable, true
