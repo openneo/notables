@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	"time"
 	. "github.com/openneo/neopets-notables-go/notables"
 )
 
@@ -56,5 +57,5 @@ func requestNotable() Notable {
 		return Notable{}
 	}
 
-	return Notable{petNameMatch[1], imageHashMatch[1]}
+	return Notable{petNameMatch[1], imageHashMatch[1], time.Now()}
 }
