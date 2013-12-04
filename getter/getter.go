@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	r "github.com/dancannon/gorethink"
+	"github.com/openneo/neopets-notables-go/db"
 	. "github.com/openneo/neopets-notables-go/notables"
 	"github.com/openneo/neopets-notables-go/source"
 	"log"
@@ -18,12 +19,8 @@ func parseMaxTries(maxTriesString string) uint64 {
 	return maxTries
 }
 
-func save(notable Notable, address string, database string, authkey string) error {
-	session, err := r.Connect(map[string]interface{}{
-		"address":  address,
-		"database": database,
-		"authkey":  authkey,
-	})
+func save(notable Notable) error {
+	session, err := db.Connect()
 	if err != nil {
 		return err
 	}
@@ -37,9 +34,7 @@ func save(notable Notable, address string, database string, authkey string) erro
 }
 
 func main() {
-	address := flag.String("address", "localhost:28015", "rethinkdb address")
-	database := flag.String("database", "test", "database name")
-	authkey := flag.String("authkey", "", "database authentication key")
+	db.SetupFlag()
 	flag.Parse()
 
 	maxTries := parseMaxTries(flag.Arg(0))
@@ -49,7 +44,7 @@ func main() {
 	}
 	fmt.Println("got notable ", notable)
 
-	err := save(notable, *address, *database, *authkey)
+	err := save(notable)
 	if err != nil {
 		log.Fatalln("save failed: ", err.Error())
 	}
