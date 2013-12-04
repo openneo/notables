@@ -3,7 +3,7 @@ package notables
 import "time"
 
 type Notable struct {
-    PetName   string
-    ImageHash string
-    Observed  time.Time
+	PetName   string    `gorethink:"petName"`
+	ImageHash string    `gorethink:"imageHash"`
+	Observed  time.Time `gorethink:"observed"`
 }
