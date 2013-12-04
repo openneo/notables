@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	. "github.com/openneo/neopets-notables-go/notables"
 )
 
 var (
@@ -13,15 +14,10 @@ var (
 		`http://pets\.neopets\.com/cp/([a-z0-9]+)/1/2\.png`)
 )
 
-type Notable struct {
-	petName   string
-	imageHash string
-}
-
 func GetNotable(maxTries int) (Notable, bool) {
 	for i := 0; i < maxTries; i++ {
 		notable := requestNotable()
-		if notable.petName != "" {
+		if notable.PetName != "" {
 			return notable, true
 		}
 	}
