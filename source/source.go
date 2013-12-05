@@ -1,11 +1,11 @@
 package source
 
 import (
+	. "github.com/openneo/neopets-notables-go/notables"
 	"io/ioutil"
 	"net/http"
 	"regexp"
 	"time"
-	. "github.com/openneo/neopets-notables-go/notables"
 )
 
 var (
