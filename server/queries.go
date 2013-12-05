@@ -15,8 +15,10 @@ func getNotablesFromDate(session *r.Session, year int, month time.Month, day int
 	startIncl := time.Date(year, month, day, 0, 0, 0, 0, timeLocation)
 	endExcl := time.Date(year, month, day+1, 0, 0, 0, 0, timeLocation)
 
+	// TODO: use index for ordering once the next rethinkdb comes out
+	betweenOpts := r.BetweenOpts{Index: "observed"}
 	return r.Table("notables").
-		Filter(r.Row.Field("observed").During(startIncl, endExcl)).
+		Between(startIncl, endExcl, betweenOpts).
 		OrderBy(r.Row.Field("observed")).
 		Run(session)
 }
