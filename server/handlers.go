@@ -3,7 +3,6 @@ package main
 import (
 	rt "github.com/dancannon/gorethink"
 	. "github.com/openneo/neopets-notables-go/notables"
-	"log"
 	"net/http"
 	"regexp"
 	"strconv"
