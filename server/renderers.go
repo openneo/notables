@@ -9,6 +9,15 @@ import (
 	"time"
 )
 
+func renderJSON(w http.ResponseWriter, r *http.Request, b []byte) {
+	callback := r.FormValue("callback")
+	if callback == "" {
+		fmt.Fprintf(w, "%s", b)
+	} else {
+		fmt.Fprintf(w, "%s(%s);", callback, b)
+	}
+}
+
 func renderNotablesJSON(rows *rt.ResultRows) ([]byte, error) {
 	notables := []Notable{}
 
@@ -31,7 +40,7 @@ func renderNotablesJSON(rows *rt.ResultRows) ([]byte, error) {
 	return b, nil
 }
 
-func renderNotablesJSONFromDate(w http.ResponseWriter, s *rt.Session, year int, month time.Month, day int) {
+func serveNotablesJSONFromDate(w http.ResponseWriter, r *http.Request, s *rt.Session, year int, month time.Month, day int) {
 	notables, err := getNotablesFromDate(s, year, month, day)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -43,5 +52,5 @@ func renderNotablesJSONFromDate(w http.ResponseWriter, s *rt.Session, year int, 
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprintf(w, "%s", b)
+	renderJSON(w, r, b)
 }

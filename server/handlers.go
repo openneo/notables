@@ -28,7 +28,7 @@ func handleExactDay(w http.ResponseWriter, r *http.Request, s *rt.Session) {
 	month, _ := strconv.ParseInt(m[2], 10, 0)
 	day, _ := strconv.ParseInt(m[3], 10, 0)
 
-	renderNotablesJSONFromDate(w, s, int(year), time.Month(month), int(day))
+	serveNotablesJSONFromDate(w, r, s, int(year), time.Month(month), int(day))
 }
 
 var dayAgoPath = regexp.MustCompile("^/api/1/days/ago/([0-9]+)$")
@@ -53,7 +53,7 @@ func handleDayAgo(w http.ResponseWriter, r *http.Request, s *rt.Session) {
 	now := time.Now().In(timeLocation)
 	day := now.Add(-time.Duration(dayAgoCount) * time.Hour * 24)
 
-	renderNotablesJSONFromDate(w, s, day.Year(), day.Month(), day.Day())
+	serveNotablesJSONFromDate(w, r, s, day.Year(), day.Month(), day.Day())
 }
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request, *rt.Session),
