@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	rt "github.com/dancannon/gorethink"
 	. "github.com/openneo/neopets-notables-go/notables"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strconv"
 	"time"
@@ -51,9 +53,17 @@ func handleDayAgo(w http.ResponseWriter, r *http.Request, s *rt.Session) {
 	}
 
 	now := time.Now().In(timeLocation)
-	day := now.Add(-time.Duration(dayAgoCount) * time.Hour * 24)
 
-	serveNotablesJSONFromDate(w, r, s, day.Year(), day.Month(), day.Day())
+	expiry := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0,
+		timeLocation)
+	writeExpiryHeaders(w, now, expiry)
+
+	day := now.Add(-time.Duration(dayAgoCount) * time.Hour * 24)
+	newPath := fmt.Sprintf("/api/1/days/%d/%d/%d", day.Year(), day.Month(),
+		day.Day())
+	newURL := url.URL{r.URL.Scheme, r.URL.Opaque, r.URL.User, r.URL.Host,
+		newPath, r.URL.RawQuery, r.URL.Fragment}
+	http.Redirect(w, r, newURL.String(), 307)
 }
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request, *rt.Session),

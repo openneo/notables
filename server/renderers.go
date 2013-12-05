@@ -54,3 +54,14 @@ func serveNotablesJSONFromDate(w http.ResponseWriter, r *http.Request, s *rt.Ses
 	}
 	renderJSON(w, r, b)
 }
+
+func writeExpiryHeaders(w http.ResponseWriter, now time.Time, expiry time.Time) {
+	secondsUntilExpiry := int(expiry.Sub(now).Seconds())
+	if secondsUntilExpiry < 0 {
+		secondsUntilExpiry = 0
+	}
+
+	w.Header().Add("cache-control",
+		fmt.Sprintf("public, max-age=%d", secondsUntilExpiry))
+	w.Header().Add("expires", expiry.Format(time.RFC1123))
+}
