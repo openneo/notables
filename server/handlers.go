@@ -53,7 +53,6 @@ func handleDayAgo(w http.ResponseWriter, r *http.Request, s *rt.Session) {
 
 	now := time.Now().In(timeLocation)
 	day := now.Add(-time.Duration(dayAgoCount) * time.Hour * 24)
-	log.Println(now, day)
 
 	renderNotablesJSONFromDate(w, s, day.Year(), day.Month(), day.Day())
 }
