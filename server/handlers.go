@@ -26,9 +26,28 @@ func handleExactDay(w http.ResponseWriter, r *http.Request, s *rt.Session) {
 
 	// Swallowing errors because the regexp already validated its int-ness and
 	// size.
-	year, _ := strconv.ParseInt(m[1], 10, 0)
-	month, _ := strconv.ParseInt(m[2], 10, 0)
-	day, _ := strconv.ParseInt(m[3], 10, 0)
+	parsedYear, _ := strconv.ParseInt(m[1], 10, 0)
+	parsedMonth, _ := strconv.ParseInt(m[2], 10, 0)
+	parsedDay, _ := strconv.ParseInt(m[3], 10, 0)
+	year, month, day := int(parsedYear), time.Month(parsedMonth), int(parsedDay)
+
+	now := time.Now().In(timeLocation)
+	nowYear, nowMonth, nowDay := now.Year(), now.Month(), now.Day()
+	if year == nowYear && month == nowMonth && day == nowDay {
+		// It's today! How exciting! We'll have a new notable in approximately
+		// five minutes, so cache until then.
+		writeExpiresIn(w, time.Duration(5)*time.Minute, now)
+	} else if year < nowYear || (year == nowYear && month < nowMonth) ||
+		(year == nowYear && month == nowMonth && day < nowDay) {
+		// This day has already passed. It's a permanent resource, but let's
+		// not get crazy. Cache it for 24 hours.
+		writeExpiresIn(w, time.Duration(24)*time.Hour, now)
+	} else {
+		// It's a future date. We're not going to have anything to say about it
+		// until that day has come.
+		expiry := time.Date(year, month, day, 0, 0, 0, 0, timeLocation)
+		writeExpiresAt(w, expiry, now)
+	}
 
 	serveNotablesJSONFromDate(w, r, s, int(year), time.Month(month), int(day))
 }
@@ -56,7 +75,7 @@ func handleDayAgo(w http.ResponseWriter, r *http.Request, s *rt.Session) {
 
 	expiry := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0,
 		timeLocation)
-	writeExpiryHeaders(w, now, expiry)
+	writeExpiresAt(w, expiry, now)
 
 	day := now.Add(-time.Duration(dayAgoCount) * time.Hour * 24)
 	newPath := fmt.Sprintf("/api/1/days/%d/%d/%d", day.Year(), day.Month(),
